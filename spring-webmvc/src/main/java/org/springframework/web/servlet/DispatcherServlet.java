@@ -894,6 +894,7 @@ public class DispatcherServlet extends FrameworkServlet {
 
 		// Keep a snapshot of the request attributes in case of an include,
 		// to be able to restore the original attributes after the include.
+		//在包含的情况下保留请求属性的快照，以便能够在包含后恢复原始属性。
 		Map<String, Object> attributesSnapshot = null;
 		if (WebUtils.isIncludeRequest(request)) {
 			attributesSnapshot = new HashMap<>();
@@ -943,7 +944,7 @@ public class DispatcherServlet extends FrameworkServlet {
 	 * themselves to decide which methods are acceptable.
 	 * @param request current HTTP request
 	 * @param response current HTTP response
-	 * @throws Exception in case of any kind of processing failure
+	 * @throws Exception in  case of any kind of processing failure
 	 */
 	protected void doDispatch(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		HttpServletRequest processedRequest = request;

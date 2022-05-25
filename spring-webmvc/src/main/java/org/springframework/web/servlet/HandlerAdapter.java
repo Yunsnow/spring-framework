@@ -47,7 +47,7 @@ import org.springframework.lang.Nullable;
  * @see org.springframework.web.servlet.mvc.SimpleControllerHandlerAdapter
  * @see org.springframework.web.servlet.handler.SimpleServletHandlerAdapter
  */
-public interface HandlerAdapter {
+public interface  HandlerAdapter {
 
 	/**
 	 * Given a handler instance, return whether or not this {@code HandlerAdapter}

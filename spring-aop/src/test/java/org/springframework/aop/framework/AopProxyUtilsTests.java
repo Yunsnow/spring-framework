@@ -36,6 +36,8 @@ public class AopProxyUtilsTests {
 
 	@Test
 	public void testCompleteProxiedInterfacesWorksWithNull() {
+		String s = "";
+
 		AdvisedSupport as = new AdvisedSupport();
 		Class<?>[] completedInterfaces = AopProxyUtils.completeProxiedInterfaces(as);
 		assertEquals(2, completedInterfaces.length);

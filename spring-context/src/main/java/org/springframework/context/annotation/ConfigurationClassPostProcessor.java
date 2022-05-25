@@ -265,6 +265,8 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 
 		for (String beanName : candidateNames) {
 			BeanDefinition beanDef = registry.getBeanDefinition(beanName);
+			//判断是否是 “"full”<全>配置类 、“lite”<半>配置类，个人乱翻译的哈
+			//@Configuration是“全”配置类，@Component、@ComponentScan等等是”半“配置类
 			if (ConfigurationClassUtils.isFullConfigurationClass(beanDef) ||
 					ConfigurationClassUtils.isLiteConfigurationClass(beanDef)) {
 				if (logger.isDebugEnabled()) {
@@ -272,6 +274,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 				}
 			}
 			else if (ConfigurationClassUtils.checkConfigurationClassCandidate(beanDef, this.metadataReaderFactory)) {
+				//这儿很重要，比如SpringBoot的启动类@SpringBootApplication类就是在这里开始解析里面的配置的
 				configCandidates.add(new BeanDefinitionHolder(beanDef, beanName));
 			}
 		}

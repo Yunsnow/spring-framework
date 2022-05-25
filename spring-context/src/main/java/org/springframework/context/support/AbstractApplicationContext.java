@@ -517,37 +517,53 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	public void refresh() throws BeansException, IllegalStateException {
 		synchronized (this.startupShutdownMonitor) {
 			// Prepare this context for refreshing.
+			//这里是做刷新bean工厂前的一系列赋值操作,主要是为前面创建的Spring工厂很多的属性都是空的，这个方式是为他做一些列的初始化值的操作！
 			prepareRefresh();
 
 			// Tell the subclass to refresh the internal bean factory.
+			//告诉子类刷新内部bean工厂  检测bean工厂是否存在 判断当前的bean工厂是否只刷新过一次，多次报错，返回当前使用的bean工厂
+			// ,当该步骤为xml时 会新建一个新的工厂并返回
 			ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
 
 			// Prepare the bean factory for use in this context.
+			//这里是初始化Spring的bean容器，向beanFactory内部注册一些自己本身内置的Bean后置处理器也就是通常说的BeanPostProcessor，这个方法其实也是再初始化工厂
 			prepareBeanFactory(beanFactory);
 
 			try {
 				// Allows post-processing of the bean factory in context subclasses.
+				//允许在上下文子类中对bean工厂进行后处理,作用是在BeanFactory准备工作完成后做一些定制化的处理!
+				// 但是注意，你点进去是空方法，空方法以为着什么？意味着Spring的开发者希望调用者自定义扩展时使用！
 				postProcessBeanFactory(beanFactory);
 
-				// Invoke factory processors registered as beans in the context.
+				//**** Invoke factory processors registered as beans in the context.
+				//其实相信看名字，大部分读者都能够猜出，他的目的是扫描非配置类的bd注册到工厂里面，
+				// 扫描完成之后，开始执行所有的BeanFactoryPostProcessors，
+				// 这里出现了第一个扩展点，自定义实现BeanFactoryPostProcessors的时候，他的回调时机是在Spring读取了全部的BeanDefinition之后调用的，
+				// 具体的使用方法读者自行百度！
 				invokeBeanFactoryPostProcessors(beanFactory);
 
 				// Register bean processors that intercept bean creation.
 				registerBeanPostProcessors(beanFactory);
 
-				// Initialize message source for this context.
+				//为此上下文初始化消息源。
 				initMessageSource();
 
 				// Initialize event multicaster for this context.
+				//为此上下文初始化事件多播器。
 				initApplicationEventMulticaster();
 
 				// Initialize other special beans in specific context subclasses.
+				//初始化特定上下文子类中的其他特殊bean
+				// springboot会在这里创建webServer:tomcat等资源=>ServletWebServerApplicationContext.onRefresh()
 				onRefresh();
 
 				// Check for listener beans and register them.
+				//检查侦听器 bean 并注册它们
 				registerListeners();
 
-				// Instantiate all remaining (non-lazy-init) singletons.
+				//**** Instantiate all remaining (non-lazy-init) singletons.
+				//这个方法是一个重点，他是为了实例化所有剩余的（非延迟初始化）单例。
+				// 我们所说的bean的实例化，注入，解决循环依赖，回调beanPostProcessor等操作都是再这里实现的！
 				finishBeanFactoryInitialization(beanFactory);
 
 				// Last step: publish corresponding event.
@@ -829,8 +845,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			getApplicationEventMulticaster().addApplicationListener(listener);
 		}
 
-		// Do not initialize FactoryBeans here: We need to leave all regular beans
-		// uninitialized to let post-processors apply to them!
+		//不要在这里初始化 FactoryBeans：我们需要让所有常规 bean 保持未初始化状态，以让后处理器应用于它们！
 		String[] listenerBeanNames = getBeanNamesForType(ApplicationListener.class, true, false);
 		for (String listenerBeanName : listenerBeanNames) {
 			getApplicationEventMulticaster().addApplicationListenerBean(listenerBeanName);
@@ -861,6 +876,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		// Register a default embedded value resolver if no bean post-processor
 		// (such as a PropertyPlaceholderConfigurer bean) registered any before:
 		// at this point, primarily for resolution in annotation attribute values.
+		//如果之前没有注册过任何 bean 后处理器（例如 PropertyPlaceholderConfigurer bean），则注册一个默认的嵌入值解析器：此时，主要用于解析注释属性值。
 		if (!beanFactory.hasEmbeddedValueResolver()) {
 			beanFactory.addEmbeddedValueResolver(strVal -> getEnvironment().resolvePlaceholders(strVal));
 		}
